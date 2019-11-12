@@ -1,7 +1,10 @@
 library(dplyr)
 
 source('graph_loader.R')
-
-graph_loader()
+source('vehicle_loader.R')
+graph = graph_loader()
+vehicles = vehicle_loader()
 
 graph %>% head
+vehicles %>% head
+
