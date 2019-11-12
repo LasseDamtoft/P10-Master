@@ -1,0 +1,58 @@
+ProblemType:	CARP
+NumberNodes:	26
+NumberEdges:	33
+DepotNodeNumber:	8
+NumberOfFractions:	1
+NumberOfIntervalsForFraction	General_Glass_Metal_Plastic_Organic	1	14
+GRAPH
+EdgeNumber	EdgeId	StartNodeNumber	EndNodeNumber	Cost	Demand_0	Bins_0
+START
+0	133	0	1	22	0	0
+1	222	2	3	238	28567	51
+2	408	4	5	45	0	0
+3	414	5	6	77	15873	14
+4	418	7	8	81	16318	32
+5	419	7	6	18	0	0
+6	420	9	3	94	1734	7
+7	421	10	11	12	0	0
+8	423	8	11	89	0	0
+9	424	10	9	94	0	0
+10	464	12	13	142	3208	19
+11	797	11	12	86	19439	25
+12	800	12	14	104	5134	30
+13	814	9	13	88	16949	21
+14	842	10	2	79	16337	15
+15	847	15	16	15	0	0
+16	848	17	15	64	0	0
+17	851	7	17	197	14654	14
+18	858	8	18	78	904	7
+19	859	16	0	8	874	6
+20	860	1	15	14	0	0
+21	861	18	1	140	19579	26
+22	878	8	19	85	3740	1
+23	887	20	21	87	2880	11
+24	888	22	5	85	0	0
+25	889	4	23	85	2040	2
+26	891	24	19	72	17288	21
+27	892	24	7	85	0	0
+28	893	6	25	85	0	0
+29	894	23	22	44	1578	9
+30	897	22	20	74	1384	8
+31	898	24	25	18	0	0
+32	899	25	20	3	0	0
+END
+-----------------------------------------
+InputUsedToGenerateTheGraph:
+County:	Frederiksberg
+CenterNodeId:	478
+Radius:	300
+HouseTypes:	Normal	Summer	Apartment
+NumberOfWasteFractions: 5
+IntervalsForWasteFraction:	general	2.3	3.5	7.0
+IntervalsForWasteFraction:	glass	7.0	14.0	21.0	28.0
+IntervalsForWasteFraction:	metal	7.0	14.0	28.0	56.0
+IntervalsForWasteFraction:	plastic	7.0	14.0	28.0	56.0
+IntervalsForWasteFraction:	Organic	28.0
+-----------------------------------------
+
+
