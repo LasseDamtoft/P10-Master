@@ -5,6 +5,7 @@ source('short_path.R')
 source('example.R')
 source('arcs_to_route.R')
 source('direction_search.R')
+source('rpp_heuristic.R')
 
 arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
                                     vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
@@ -30,25 +31,15 @@ arcs = vehicle_service %>%
                which(service>4)))) %>% 
   select(StartNodeNumber, EndNodeNumber, Lenght) 
 
-arcs_to_route(arcs) %>% summarise(sum(Lenght))
 
-arcs %>% summarise(sum(Lenght))
-arcs_test = arcs %>% sample_n(nrow(arcs))
-best_route_value = arcs_to_route(arcs_test) %>% summarise(sum(Lenght))
-best_route = arcs_to_route(arcs_test)
-t = Sys.time()
-for (i in 1:1000) {
-  print(i)
-  arcs_test = arcs %>% sample_n(nrow(arcs))
-  current_route = arcs_test  %>% 
-    arcs_to_route()
-  current_route_value = current_route  %>% summarise(sum(Lenght))
-  if (current_route_value < best_route_value) {
-    best_route_value = current_route_value
-    best_route = arcs_test
-  }
+times = rep(0,100)
+values = rep(100,100)
+for (i in 1:100) {
+  t = Sys.time()
+  best_route = rpp_heuristic(arcs, 100)
+  values[i] = best_route %>% summarise(sum(Lenght)) %>% as.numeric()
+  times[i] = Sys.time() - t
 }
-Sys.time() - t
 
 
 
