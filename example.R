@@ -15,5 +15,7 @@ example_graph$Width = c(3,3,3,3,6,6,6,6,6,3,6,3,3,6,3)
 
 example_vehicles$spreadwidth = c(6,3)
 example_vehicles$ID = c(2,1)
+example_vehicles$service_speed = c(30,15)
+example_vehicles$deadhead_speed = c(60,30)
 example_graph$EdgeNumber = example_graph %>% rownames() %>% as.numeric()
 example_graph$EdgeNumber = example_graph$EdgeNumber-1
