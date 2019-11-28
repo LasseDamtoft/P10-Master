@@ -17,7 +17,7 @@ route_finding = function(arc_allocation, vehicles, graph, N = 1000){
                    which(service>3),
                    which(service>4)))) %>% 
       select(StartNodeNumber, EndNodeNumber, Lenght) 
-    
+    # browser()
     arcs$service = 1
     best_route = rpp_heuristic(arcs, N)
     

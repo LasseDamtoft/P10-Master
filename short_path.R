@@ -4,18 +4,21 @@ short_paths = function(graph, paths = F, distances = F){
   }
   library(igraph)
 
-  mat = rep(0,(max(graph[,c(2,3)])-min(graph[,c(2,3)]))^2) %>% 
-    matrix(nrow = (max(graph[,c(2,3)])-min(graph[,c(2,3)])))
+  mat = rep(0,(max(graph[,c(2,3)])-min(graph[,c(2,3)])+1)^2) %>% 
+    matrix(nrow = (max(graph[,c(2,3)])-min(graph[,c(2,3)])+1))
   
+  # browser()
   
-  for (arc in 1:max(graph$EdgeNumber)) {
+  for (arc in graph$EdgeNumber) {
     arc_current = graph %>% slice(which(EdgeNumber == arc))
     node1 = arc_current$StartNodeNumber
     node2 = arc_current$EndNodeNumber
+    # print(c(node1, node2))
     mat[node1,node2] = mat[node2,node1] = arc_current$Lenght
     
     
   }
+  
   g <- graph.adjacency(mat, weighted=TRUE)
   if (distances) {
     s.paths <- shortest.paths(g, algorithm = "dijkstra")

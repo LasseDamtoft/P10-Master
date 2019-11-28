@@ -7,21 +7,38 @@ source('arcs_to_route.R')
 source('direction_search.R')
 source('rpp_heuristic.R')
 source('route_finding.R')
+source("connected_rpp.R")
 
 s.paths = short_paths(example_graph, distances = T)
 paths_list = short_paths(example_graph, paths = T)
 
+test_graph = graph_loader()
+test_graph[,1:3] = test_graph[,1:3]+1
+connected_rpp(test_graph)
+tic = Sys.time()
+s.paths_test = short_paths(test_graph, distances = T)
+paths_list_test = short_paths(test_graph, paths = T)
+Sys.time() - tic
 
 arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
                             vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
 
+example_vehicles
+test_graph$EdgeNumber[example_graph$service == 1] %>% length()
+arc_allocation = data.frame(arc = test_graph$EdgeNumber[example_graph$service == 1],
+                            vehicle = sample(c(1,2), 1049, replace = T))
 
-connected_rpp_solver(example_graph)
-routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 100)
-graph_loader()
+s.paths = s.paths_test
+paths_list = paths_list_test
+
+tic= Sys.time()
+routes = route_finding(arc_allocation, example_vehicles, test_graph, N = 100)
+Sys.time() - tic
 route_time = lapply(routes, function(route){
   route$Timing %>% sum
-}) 
+})
+route_time
+
 best = route_time[[which.max(route_time)]]
 old = best+1
 tic = Sys.time()

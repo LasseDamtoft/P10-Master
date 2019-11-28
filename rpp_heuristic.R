@@ -1,5 +1,5 @@
 rpp_heuristic = function(arcs, N = 100){
-  browser()
+  # browser()
   # if (connected_rpp(arcs)) {
   #   connected_rpp_solver()
   # }
@@ -27,7 +27,7 @@ rpp_heuristic = function(arcs, N = 100){
     best_route = r3
     best_route_value = best_route %>%  summarise(sum(Lenght))
   }
-  r4 = arcs_test[sort(arcs_rules$first_node, decreasing = T),] %>% arcs_to_route()
+  r4 = arcs_test[order(arcs_rules$first_node, decreasing = T),] %>% arcs_to_route()
   if (r4 %>%  summarise(sum(Lenght)) < best_route_value) {
     best_route = r4
     best_route_value = best_route %>%  summarise(sum(Lenght))
@@ -48,7 +48,7 @@ rpp_heuristic = function(arcs, N = 100){
     # print(i)
     # browser()
     arcs_test = arcs %>% sample_n(nrow(arcs))
-    print(arcs_test)
+    # print(arcs_test)
     current_route = arcs_test  %>% 
       arcs_to_route()
     current_route_value = current_route  %>% summarise(sum(Lenght))

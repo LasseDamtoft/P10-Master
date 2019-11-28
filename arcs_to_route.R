@@ -2,7 +2,7 @@ library(dplyr)
 library(prodlim)
 arcs_to_route = function(arcs){
   if (arcs[1,1] != 1) {
-
+    # browser()
     inserted_path = paths_list[[1]][[arcs[1,1]]]
     arcs_part= lapply(1:(length(inserted_path)-1), function(j){
       c(inserted_path[j],inserted_path[j+1], s.paths[inserted_path[j],inserted_path[j+1]])
@@ -35,6 +35,7 @@ arcs_to_route = function(arcs){
     if (arcs[i,2] == arcs[i+1,1]) {
       arcs_new= arcs[i,]
     }else{
+      # browser()
       inserted_path = paths_list[[arcs[i,2]]][[arcs[i+1,1]]]
       arcs_part= lapply(1:(length(inserted_path)-1), function(j){
         c(inserted_path[j],inserted_path[j+1], s.paths[inserted_path[j],inserted_path[j+1]])
