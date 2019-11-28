@@ -6,69 +6,43 @@ source('example.R')
 source('arcs_to_route.R')
 source('direction_search.R')
 source('rpp_heuristic.R')
+source('route_finding.R')
 
-arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
-                            vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
 s.paths = short_paths(example_graph, distances = T)
 paths_list = short_paths(example_graph, paths = T)
 
-route_finding = lapply(1:2, function(vehicle_id){
-  cur_vehicle = example_vehicles[example_vehicles$ID == vehicle_id,]
-  vehicle_service = example_graph
-  vehicle_service$service = 0
-  vehicle_service$service[which(vehicle_service$EdgeNumber %in% 
-                                  which(arc_allocation$vehicle == vehicle_id))] =1
-  
-  vehicle_service = vehicle_service %>% 
-    mutate(service = service*ceiling(Width/cur_vehicle$spreadwidth))
-  
-  arcs = vehicle_service %>% 
-    slice(sort(c(which(service>0),
-                 which(service>1),
-                 which(service>2),
-                 which(service>3),
-                 which(service>4)))) %>% 
-    select(StartNodeNumber, EndNodeNumber, Lenght) 
-  
-  arcs$service = 1
-  best_route = rpp_heuristic(arcs, 1000)
 
-  best_route %>% mutate(timeing = ifelse(best_route$service == 1,
-                                          best_route$Lenght/cur_vehicle$service_speed*60,
-                                          best_route$Lenght/cur_vehicle$deadhead_speed*60))
-})
-
-route_time = lapply(route_finding, function(route){
-  route$timeing %>% sum
-})
-
-temp = route_finding[[which.max(route_time)]][route_finding[[which.max(route_time)]]$service == 1,]
-
-vehicle_service = example_graph
-
-temp2 = vehicle_service[which(vehicle_service$EdgeNumber %in% 
-                                which(arc_allocation$vehicle == which.max(route_time))),] 
-r_match = rbind(row.match(temp[,c(2,1)],temp2[,2:3], nomatch = F),
-                row.match(temp[,1:2],temp2[,2:3], nomatch = F)) %>%
-  as.data.frame() %>% 
-  sapply(max) %>% 
-  as.numeric()
-
-temp$arc_ID = temp2[r_match,1]
+arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
+                            vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
 
 
-arc_times = lapply(unique(temp$arc_ID), function(arc_inde){
-  sum(temp$timeing[temp$arc_ID == arc_inde])
-}) %>% do.call(rbind,.) %>% cbind(unique(temp$arc_ID))
-
-most_expensive_edge = arc_times[which.max(arc_times[,1]),2]
-
-temp3 = sort(example_vehicles$ID)
-
-arc_allocation[most_expensive_edge,2] =temp3[temp3 !=arc_allocation[most_expensive_edge,2]]
-
-
-
-
-
+connected_rpp_solver(example_graph)
+routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 100)
+graph_loader()
+route_time = lapply(routes, function(route){
+  route$Timing %>% sum
+}) 
+best = route_time[[which.max(route_time)]]
+old = best+1
+tic = Sys.time()
+while (best < old) {
+  old = best 
+  neighbourhood = lapply(1:nrow(arc_allocation), function(i){
+    arc_allocation$vehicle[i] = example_vehicles$ID[which(example_vehicles$ID != arc_allocation$vehicle[i])] 
+    arc_allocation
+  })
+  neigbour_results = lapply(neighbourhood, function(arc_allocation){
+    routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 100)
+    
+    route_time = lapply(routes, function(route){
+      route$Timing %>% sum
+    }) 
+    route_time[[which.max(route_time)]]
+  })
+  if (best > neigbour_results[[which.min(neigbour_results)]]) {
+    arc_allocation = neighbourhood[[which.min(neigbour_results)]]
+    best = neigbour_results[[which.min(neigbour_results)]]
+  }
+}
+Sys.time() - tic 
 
