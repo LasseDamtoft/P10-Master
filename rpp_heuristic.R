@@ -1,12 +1,14 @@
-rpp_heuristic = function(arcs, N = 100){
+rpp_heuristic = function(arcs, N = 100, graph){
   # browser()
-  # if (connected_rpp(arcs)) {
-  #   connected_rpp_solver()
-  # }
   arcs_test = arcs
-  best_route = arcs_to_route(arcs_test)
-  best_route_value = best_route %>%  summarise(sum(Lenght))
-
+  if (connected_rpp(arcs)) {
+    best_route = euleran_path_from_connected(arcs,graph)
+    best_route = arcs_to_route(best_route)
+    best_route_value = best_route %>%  summarise(sum(Lenght))
+  }else{
+    best_route = arcs_to_route(arcs_test)
+    best_route_value = best_route %>%  summarise(sum(Lenght))
+  }
   dist = lapply(1:nrow(arcs_test), function(arc){
     c(s.paths[1,arcs_test[arc,1]],s.paths[1,arcs_test[arc,2]])
   }) %>% do.call(rbind,.)
@@ -42,7 +44,7 @@ rpp_heuristic = function(arcs, N = 100){
     best_route = r6
     best_route_value = best_route %>%  summarise(sum(Lenght))
   }
-  
+  # browser()
   i = 1
   while(i<N) {
     # print(i)
@@ -54,12 +56,13 @@ rpp_heuristic = function(arcs, N = 100){
     current_route_value = current_route  %>% summarise(sum(Lenght))
     if (current_route_value < best_route_value) {
       best_route_value = current_route_value
-      best_route = current_route
+      best_route = try_rule(arcs_test)
       i = 1
     }else{
       i = i + 1
     }
   }
+  best_route = best_route %>% arcs_to_route()
   rownames(best_route) = NULL
   return(best_route)
 }

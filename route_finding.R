@@ -19,7 +19,7 @@ route_finding = function(arc_allocation, vehicles, graph, N = 1000){
       select(StartNodeNumber, EndNodeNumber, Lenght) 
     # browser()
     arcs$service = 1
-    best_route = rpp_heuristic(arcs, N)
+    best_route = rpp_heuristic(arcs, N, graph)
     
     best_route %>% mutate(Timing = ifelse(best_route$service == 1,
                                            best_route$Lenght/cur_vehicle$service_speed*60,
