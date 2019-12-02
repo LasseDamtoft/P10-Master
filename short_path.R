@@ -19,7 +19,8 @@ short_paths = function(graph, paths = F, distances = F){
     
   }
   
-  g <- graph.adjacency(mat, weighted=TRUE)
+  g <- graph.adjacency(mat, weighted=TRUE, mode = 'undirected')
+  # browser()
   if (distances) {
     s.paths <- shortest.paths(g, algorithm = "dijkstra")
     return(s.paths)

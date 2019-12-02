@@ -9,6 +9,7 @@ add_eulerian_need_paths = function(arcs,graph){
   node_table$. = node_table$. %>% as.character %>% as.numeric()
   mst_temp = s.paths[node_table$.[node_table$Freq %% 2 != 0],node_table$.[node_table$Freq %% 2 != 0]]
   n_nodes = sqrt(length(mst_temp))
+
   mst_temp[mst_temp == 0] = max(mst_temp)+1
   n_1 = node_table$.[node_table$Freq %% 2 != 0][ceiling(which.min(mst_temp)/n_nodes)]
   n_2 = node_table$.[node_table$Freq %% 2 != 0][if_else(which.min(mst_temp) %% n_nodes == 0,

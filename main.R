@@ -13,6 +13,9 @@ source("connected_rpp.R")
 source("rules.R")
 source('euleran_path_from_connected.R')
 source("add_eulerian_need_paths.R")
+source("add_eulerian_need_cycle.R")
+source('euleran_cycle_from_connected.R')
+source('make_arcs_connected.R')
 
 s.paths = short_paths( example_graph[example_graph$service == 1,], distances = T)
 paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
@@ -20,7 +23,7 @@ arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service
                             vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
 
 
-euleran_path_from_connected(example_graph[-1,c(2,3,4,7)], graph = example_graph)
+# euleran_path_from_connected(example_graph[-1,c(2,3,4,7)], graph = example_graph)
 
 
 # 
@@ -42,7 +45,7 @@ euleran_path_from_connected(example_graph[-1,c(2,3,4,7)], graph = example_graph)
 # paths_list = paths_list_test
 
 tic= Sys.time()
-routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 100)
+routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 1)
 Sys.time() - tic
 route_time = lapply(routes, function(route){
   route$Timing %>% sum

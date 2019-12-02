@@ -2,12 +2,28 @@ rpp_heuristic = function(arcs, N = 100, graph){
   # browser()
   arcs_test = arcs
   if (connected_rpp(arcs)) {
-    best_route = euleran_path_from_connected(arcs,graph)
-    best_route = arcs_to_route(best_route)
+    best_route = euleran_cycle_from_connected(arcs,graph)
+    new_route = euleran_path_from_connected(arcs,graph)
+    # best_route = arcs_to_route(best_route)
+    # browser()
     best_route_value = best_route %>%  summarise(sum(Lenght))
+    new_route_value = new_route %>%  summarise(sum(Lenght))
+    if (new_route_value < best_route_value) {
+      best_route = new_route
+      best_route_value = new_route_value
+    }
   }else{
-    best_route = arcs_to_route(arcs_test)
+    # browser()
+    arcs2 = make_arcs_connected(arcs,graph)
+    best_route = euleran_cycle_from_connected(arcs2,graph)
+    new_route = euleran_path_from_connected(arcs2,graph)
+    # best_route = arcs_to_route(best_route)
     best_route_value = best_route %>%  summarise(sum(Lenght))
+    new_route_value = new_route %>%  summarise(sum(Lenght))
+    if (new_route_value < best_route_value) {
+      best_route = new_route
+      best_route_value = new_route_value
+    }
   }
   dist = lapply(1:nrow(arcs_test), function(arc){
     c(s.paths[1,arcs_test[arc,1]],s.paths[1,arcs_test[arc,2]])

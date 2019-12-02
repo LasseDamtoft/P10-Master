@@ -8,11 +8,14 @@ euleran_path_from_connected = function(arcs, graph){
     table() %>%
     data.frame()
   # browser()
+
+  
+
   for (i in 1:floor((sum(node_table_old$Freq %% 2 != 0)-1)/2)) {
     arcs = add_eulerian_need_paths(arcs,graph)
   }
   # browser()
-
+ 
   arcs2 = arcs
   node = arcs$StartNodeNumber %>% cbind(arcs$EndNodeNumber) %>% unlist %>% as.numeric() %>% unique %>% sort
   for (j in arcs2[,1:3] %>% duplicated() %>% which()) {
@@ -27,7 +30,7 @@ euleran_path_from_connected = function(arcs, graph){
                to=as.character(arcs2$EndNodeNumber))
   start_point = as.character(node[s.paths[1,node] %>% which.min()])
   if (!hasEulerianPath(g, start_point)) {
-   
+    
     arcs3 = add_eulerian_need_paths(arcs,graph)
     cost_cycle=sum(arcs3$Lenght) - sum(arcs$Lenght)
     ep = eulerian(g) %>% as.numeric()
@@ -67,16 +70,24 @@ euleran_path_from_connected = function(arcs, graph){
   }) %>% do.call(rbind,.) %>% as.data.frame()
   r_match = cbind(row.match(arcs_part[,1:2],arcs2[,c("StartNodeNumber", "EndNodeNumber")], nomatch = F),
                   row.match(arcs_part[,2:1],arcs2[,c("StartNodeNumber", "EndNodeNumber")], nomatch = F))
-  
+  # browser()
+  service_0 = apply(as.data.frame(r_match), MARGIN = 1, FUN = max) %>% duplicated()
   arcs_new = lapply(1:nrow(r_match), function(i){
     # browser()
     direction = which(r_match[i,] != 0)
     if (direction == 1) {
-      arcs2[r_match[i,] %>% max(), ]
+      temp = arcs2[r_match[i,] %>% max(), ]
+      if (service_0[i]) {
+        temp$service = 0
+      }
+      temp
     }else{
       temp = arcs2[r_match[i,] %>% max(), ]
       temp$StartNodeNumber = arcs2$EndNodeNumber[r_match[i,] %>% max()]
       temp$EndNodeNumber = arcs2$StartNodeNumber[r_match[i,] %>% max()]
+      if (service_0[i]) {
+        temp$service = 0
+      }
       temp
     }
   }) %>% do.call(rbind,.)
@@ -86,7 +97,7 @@ euleran_path_from_connected = function(arcs, graph){
     arcs_new = arcs_new[-which(arcs_new$StartNodeNumber == k),]
   }
   rownames(arcs_new) = NULL
-# browser()
+  # browser()
   arcs_new = arcs_new[,c("StartNodeNumber", "EndNodeNumber", "Lenght", "service")]
   return(arcs_new)
 }
