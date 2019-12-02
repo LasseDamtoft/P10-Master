@@ -24,7 +24,7 @@ add_eulerian_need_cycle = function(arcs,graph){
   txt = rbind(c(n_nodes, NA,NA), c(nrow(input_txt),NA,NA), input_txt)
   write.table(txt, file = 'input2.txt', sep = ' ', row.names = F, col.names = F, na = '')
   
-  ss = system(command = './Minimum-Cost-Perfect-Matching/example2 -f ./input2.txt --minweight', intern = T, wait = T)
+  ss = system(command = './MCPM/example2 -f ./input2.txt --minweight', intern = T, wait = T)
   min_cost_perfect_match = ss[3:length(ss)] %>% unlist %>% 
     as.character() %>%
     strsplit(split = ' ') %>% 
