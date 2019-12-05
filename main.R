@@ -48,6 +48,6 @@ paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
 # paths_list = paths_list_test
 
 tic= Sys.time()
-problem_solver(example_vehicles, example_graph)
+problem_solver(example_vehicles, example_graph, pop_size = 5, N_mutations = 5)
 Sys.time() - tic 
 
