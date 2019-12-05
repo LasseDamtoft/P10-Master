@@ -1,8 +1,7 @@
-source('rpp_heuristic.R')
-route_finding = function(arc_allocation, vehicles, graph, N = 1000){
-  # browser()
-  route_finding = lapply(unique(arc_allocation$vehicle), function(vehicle_id){
+fixed_cost2 = function(arc_allocation, vehicles, graph){
+  fixed_cost = lapply(unique(arc_allocation$vehicle), function(vehicle_id){
     cur_vehicle = vehicles[vehicles$ID == vehicle_id,]
+    # browser()
     vehicle_service = graph 
     vehicle_service$service = 0
     vehicle_service$service[which(vehicle_service$EdgeNumber %in% 
@@ -11,6 +10,8 @@ route_finding = function(arc_allocation, vehicles, graph, N = 1000){
     vehicle_service = vehicle_service %>% 
       mutate(service = service*ceiling(Width/cur_vehicle$spreadwidth))
     
+    # browser()
+    # fixed_length = vehicle_service$service %*% vehicle_service$Lenght / cur_vehicle$service_speed*60
     arcs = vehicle_service %>% 
       slice(sort(c(which(service>0),
                    which(service>1),
@@ -20,17 +21,19 @@ route_finding = function(arc_allocation, vehicles, graph, N = 1000){
       select(StartNodeNumber, EndNodeNumber, Lenght) 
     # browser()
     arcs$service = 1
-    if (nrow(arcs)<2) {
-      arcs %>% mutate(Timing = ifelse(arcs$service == 1,
+    
+    # browser()
+    if (!connected_rpp(arcs) ) {
+      arcs = make_arcs_connected(arcs, graph)
+      arcs = arcs %>% mutate(Timing = ifelse(arcs$service == 1,
                                       arcs$Lenght/cur_vehicle$service_speed*60,
                                       arcs$Lenght/cur_vehicle$deadhead_speed*60))
+      sum(arcs$Timing)
     }else{
-      best_route = rpp_heuristic(arcs, N, graph)
-      
-      best_route %>% mutate(Timing = ifelse(best_route$service == 1,
-                                            best_route$Lenght/cur_vehicle$service_speed*60,
-                                            best_route$Lenght/cur_vehicle$deadhead_speed*60))
+      fixed_length = vehicle_service$service %*% vehicle_service$Lenght / cur_vehicle$service_speed*60
     }
-  })
-  return(route_finding)
+   
+  }) %>% do.call(rbind,.)
+  # browser()
+  return(max(fixed_cost))
 }

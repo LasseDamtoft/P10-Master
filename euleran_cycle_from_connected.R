@@ -8,12 +8,16 @@ euleran_cycle_from_connected = function(arcs, graph){
     table() %>%
     data.frame()
   # browser()
-  
+  node_table_old$. = node_table_old$. %>% as.character %>% as.numeric()
+  if (length(node_table_old$.[node_table_old$Freq %% 2 != 0])>0) {
     arcs = add_eulerian_need_cycle(arcs,graph)
-
+  }
+  
+  
   # browser()
   
   arcs2 = arcs
+  arcs2[,c("StartNodeNumber", "EndNodeNumber")] = apply(arcs2[,c("StartNodeNumber", "EndNodeNumber")], MARGIN = 1, FUN = sort) %>% t()
   node = arcs$StartNodeNumber %>% cbind(arcs$EndNodeNumber) %>% unlist %>% as.numeric() %>% unique %>% sort
   for (j in arcs2[,1:3] %>% duplicated() %>% which()) {
     new_arc = arcs2[j,]
@@ -26,10 +30,46 @@ euleran_cycle_from_connected = function(arcs, graph){
   g <- addEdge(graph=g, from=as.character(arcs2$StartNodeNumber), 
                to=as.character(arcs2$EndNodeNumber))
   start_point = as.character(node[s.paths[1,node] %>% which.min()])
-
-  ep = eulerian(g, start = start_point) %>% as.numeric()
   # browser()
-  inserted_path = ep %>% c(head(paths_list[[1]][[as.numeric(start_point)]],-1),.)
+  ep = eulerian(g, start = start_point) %>% as.numeric()
+  i = 0
+  while (length(ep) != (nrow(arcs2)+1)& i<max(node2)) {
+    # browser()
+    i = i+1
+    if (i %in% node2) {
+      if (hasEulerianCycle(g)) {
+        ep = eulerian(g, start = as.character(i)) %>% as.numeric()
+      }
+    }
+  }   
+  if (ep[1] != start_point) {
+    ep = c(ep[min(which(ep == start_point)):length(ep)],ep[2:min(which(ep == start_point))])
+  }
+  # browser()
+  init_path = paths_list[[1]][[as.numeric(start_point)]]
+  if (length(ep) != (nrow(arcs2)+1)) {
+    browser()
+  }
+  if (length(init_path)>0) {
+    init_arcs= lapply(1:(length(init_path)-1), function(j){
+      c(init_path[j],init_path[j+1], s.paths[init_path[j],init_path[j+1]])
+    }) %>% do.call(rbind,.) %>% as.data.frame()
+    
+    r_match = rbind(row.match(init_arcs[,c(2,1,3)],graph[,c("StartNodeNumber", "EndNodeNumber", "Lenght")], nomatch = F),
+                    row.match(init_arcs[,1:3],graph[,c("StartNodeNumber", "EndNodeNumber", "Lenght")], nomatch = F)) %>%
+      as.data.frame() %>% 
+      sapply(max) %>% 
+      as.numeric()
+    # browser()
+    temppp = graph[r_match,c("StartNodeNumber", "EndNodeNumber", "Lenght", "service")]
+    temppp$service = 0
+    
+    arcs2 = rbind(arcs2,temppp)
+    rownames(arcs) = NULL
+  }
+  
+  
+  inserted_path = ep %>% c(head(init_path,-1),.)
   
   arcs_part= lapply(1:(length(inserted_path)-1), function(j){
     c(inserted_path[j],inserted_path[j+1])
@@ -41,6 +81,9 @@ euleran_cycle_from_connected = function(arcs, graph){
   arcs_new = lapply(1:nrow(r_match), function(i){
     # browser()
     direction = which(r_match[i,] != 0)
+    if (length(direction) == 0) {
+      browser()
+    }
     if (direction == 1) {
       temp = arcs2[r_match[i,] %>% max(), ]
       if (service_0[i]) {

@@ -1,6 +1,9 @@
 library(dplyr)
 library(prodlim)
 arcs_to_route = function(arcs){
+
+  # browser()
+
   if (arcs[1,1] != 1) {
     # browser()
     inserted_path = paths_list[[1]][[arcs[1,1]]]

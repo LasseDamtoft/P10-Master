@@ -1,6 +1,6 @@
 library(dplyr)  
-require(graph)
-require(eulerian)
+library(graph)
+library(eulerian)
 source('graph_loader.R')
 source('vehicle_loader.R')
 source('short_path.R')
@@ -16,11 +16,14 @@ source("add_eulerian_need_paths.R")
 source("add_eulerian_need_cycle.R")
 source('euleran_cycle_from_connected.R')
 source('make_arcs_connected.R')
-
+source('feasibility.R')
+source('fixed_cost.R')
+source('helper_functions.R')
+source('problem_solver.R')
 s.paths = short_paths( example_graph[example_graph$service == 1,], distances = T)
 paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
-arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
-                            vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
+# arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
+#                             vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
 
 
 # euleran_path_from_connected(example_graph[-1,c(2,3,4,7)], graph = example_graph)
@@ -45,34 +48,6 @@ arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service
 # paths_list = paths_list_test
 
 tic= Sys.time()
-routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 1)
-Sys.time() - tic
-route_time = lapply(routes, function(route){
-  route$Timing %>% sum
-})
-route_time
-
-best = route_time[[which.max(route_time)]]
-old = best+1
-tic = Sys.time()
-while (best < old) {
-  old = best 
-  neighbourhood = lapply(1:nrow(arc_allocation), function(i){
-    arc_allocation$vehicle[i] = example_vehicles$ID[which(example_vehicles$ID != arc_allocation$vehicle[i])] 
-    arc_allocation
-  })
-  neigbour_results = lapply(neighbourhood, function(arc_allocation){
-    routes = route_finding(arc_allocation, example_vehicles, example_graph, N = 100)
-    
-    route_time = lapply(routes, function(route){
-      route$Timing %>% sum
-    }) 
-    route_time[[which.max(route_time)]]
-  })
-  if (best > neigbour_results[[which.min(neigbour_results)]]) {
-    arc_allocation = neighbourhood[[which.min(neigbour_results)]]
-    best = neigbour_results[[which.min(neigbour_results)]]
-  }
-}
+problem_solver(example_vehicles, example_graph)
 Sys.time() - tic 
 

@@ -15,6 +15,7 @@ add_eulerian_need_paths = function(arcs,graph){
   n_2 = node_table$.[node_table$Freq %% 2 != 0][if_else(which.min(mst_temp) %% n_nodes == 0,
                                                         n_nodes,
                                                         which.min(mst_temp) %% n_nodes)]
+  # print(c(n_1,n_2))
   inserted_path = paths_list[[n_1]][[n_2]]
   arcs_part= lapply(1:(length(inserted_path)-1), function(j){
     c(inserted_path[j],inserted_path[j+1], s.paths[inserted_path[j],inserted_path[j+1]])

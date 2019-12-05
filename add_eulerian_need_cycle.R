@@ -20,7 +20,7 @@ add_eulerian_need_cycle = function(arcs,graph){
       }
     }) %>% do.call(rbind,.)
   }) %>% do.call(rbind,.) %>% as.matrix()
-
+# browser()
   txt = rbind(c(n_nodes, NA,NA), c(nrow(input_txt),NA,NA), input_txt)
   write.table(txt, file = 'input2.txt', sep = ' ', row.names = F, col.names = F, na = '')
   
