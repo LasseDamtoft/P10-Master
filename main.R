@@ -1,5 +1,5 @@
 library(dplyr)  
-library(graph)
+# library(graph)
 library(eulerian)
 source('graph_loader.R')
 source('vehicle_loader.R')
@@ -20,6 +20,7 @@ source('feasibility.R')
 source('fixed_cost.R')
 source('helper_functions.R')
 source('problem_solver.R')
+source('sub_graphs2.R')
 s.paths = short_paths( example_graph[example_graph$service == 1,], distances = T)
 paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
 # arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
@@ -48,6 +49,7 @@ paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
 # paths_list = paths_list_test
 
 tic= Sys.time()
-problem_solver(example_vehicles, example_graph, pop_size = 5, N_mutations = 5)
+solution = problem_solver(example_vehicles, example_graph, pop_size = 5, N_mutations = 5)
 Sys.time() - tic 
 
+solution[[1]] %>% route_finding(vehicles = example_vehicles, example_graph)

@@ -18,35 +18,40 @@ sub_graphs = function(arc_allocation, vehicles, graph){
       select(StartNodeNumber, EndNodeNumber, Lenght) 
     # browser()
     arcs$service = 1
-    arcs2  = arcs
-    connected_subs = list()
-    i=1
-    
-    while(nrow(arcs2) != 0){
-      rest = arcs2[,c("StartNodeNumber", "EndNodeNumber")] 
-      current = arcs2[1,c("StartNodeNumber", "EndNodeNumber")]
-      row_include = 1
-      while(length(row_include) != 0 ){
-        rest = rest[-row_include,]
-        row_include = (which(as.matrix(rest) %in% as.matrix(current)) %% nrow(rest))
-        row_include[row_include == 0] = nrow(rest)
-        row_include = row_include %>% unique()
-        current = rbind(current, rest[row_include,])
-        
-      } 
-      connected_subs[[i]] = current
-      i=i+1
-      arcs2 = rest
+    if (!connected_rpp(arcs)) {
+      arcs2  = arcs
+      connected_subs = list()
+      i=1
       
+      while(nrow(arcs2) != 0){
+        rest = arcs2[,c("StartNodeNumber", "EndNodeNumber")] 
+        current = arcs2[1,c("StartNodeNumber", "EndNodeNumber")]
+        row_include = 1
+        while(length(row_include) != 0 ){
+          rest = rest[-row_include,]
+          row_include = (which(as.matrix(rest) %in% as.matrix(current)) %% nrow(rest))
+          row_include[row_include == 0] = nrow(rest)
+          row_include = row_include %>% unique()
+          current = rbind(current, rest[row_include,])
+          
+        } 
+        connected_subs[[i]] = current
+        i=i+1
+        arcs2 = rest
+        
+      }
+      node_sets = lapply(1:length(connected_subs), function(j){
+        connected_subs[[j]] %>% unlist %>%  as.numeric() %>% unique
+      })
+      connect_length = lapply(node_sets[2:length(node_sets)], function(nodes){
+        s.paths[node_sets[[1]], nodes] %>% min()
+      })
+      # browser()
+      (connected_subs %>% length())/nrow(arcs)
+    }else{
+      0
     }
-    node_sets = lapply(1:length(connected_subs), function(j){
-      connected_subs[[j]] %>% unlist %>%  as.numeric() %>% unique
-    })
-    connect_length = lapply(node_sets[2:length(node_sets)], function(nodes){
-      s.paths[node_sets[[1]], nodes] %>% min()
-    })
-    browser()
-    length(connected_subs)
+    
   }) %>% do.call(rbind,.)
   # browser()
   return(max(sub_graphs))

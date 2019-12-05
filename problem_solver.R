@@ -1,5 +1,6 @@
 problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutations = 3){
   # browser()
+  # set.seed(13)
   best_allocation = data.frame(arc =example_graph$EdgeNumber[example_graph$service == 1],
                                vehicle = round(runif(length(example_graph$EdgeNumber[example_graph$service == 1]),
                                                      min = min(example_vehicles$ID)-.5,
@@ -19,18 +20,24 @@ problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutat
     neighbourhood = lapply(1:nrow(population), function(k){
       arc_allocation = best_allocation
       arc_allocation$vehicle = population[k,]
-      lapply(1:nrow(best_allocation), function(i){
-        arc_allocation$vehicle[i] = example_vehicles$ID[which(example_vehicles$ID != arc_allocation$vehicle[i])] 
-        if (feasibility(arc_allocation, example_vehicles, example_graph) &
-            fixed_cost(arc_allocation, example_vehicles, example_graph)<best &
-            fixed_cost2(arc_allocation, example_vehicles, example_graph)<best) {
-          arc_allocation$vehicle
-        }else{
-          NULL
-        }
+      lapply(1:nrow(best_allocation), function(arc_number){
+        lapply(example_vehicles$ID[which(example_vehicles$ID != arc_allocation$vehicle[arc_number])], function(vehicle_number){
+          # browser()
+          arc_allocation$vehicle[arc_number] = vehicle_number
+          
+          if (feasibility(arc_allocation, example_vehicles, example_graph)){
+            if (fixed_cost(arc_allocation, example_vehicles, example_graph)<best) {
+              if (sub_graphs(arc_allocation, example_vehicles, example_graph) < .5) {
+                if (fixed_cost2(arc_allocation, example_vehicles, example_graph)<best) {
+                  arc_allocation$vehicle
+                }else{NULL}
+              }else{NULL}
+            }else{NULL}
+          }else{NULL}
+        })%>% do.call(rbind,.)
       }) %>% do.call(rbind,.)
     }) %>% do.call(rbind,.)
-      
+    
     # browser()
     for(bla in 1:N_mutations) {
       # browser()
@@ -39,21 +46,27 @@ problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutat
                              max = max(best_allocation$vehicle)+.5),0)
       temp = best_allocation
       temp$vehicle = addition
-      if (feasibility(temp, vehicles = example_vehicles, graph = example_graph)&
-          fixed_cost(temp, vehicles = example_vehicles, graph = example_graph)) {
-        neighbourhood = rbind(neighbourhood, as.numeric(addition))
+      if (feasibility(temp, vehicles = example_vehicles, graph = example_graph)) {
+        if (fixed_cost(temp, example_vehicles, example_graph)<best) {
+          if (sub_graphs(temp, example_vehicles, example_graph) < .5) {
+            if (fixed_cost2(temp, example_vehicles, example_graph)<best) {
+              neighbourhood = rbind(neighbourhood, as.numeric(addition))
+            }
+          }
+        }
       }
     }
     # browser()
-    neighbourhood = neighbourhood[!duplicated(neighbourhood),]
-
+    neighbourhood = neighbourhood[!duplicated(neighbourhood),] %>% rbind()
+    # browser()
     neigbour_results = lapply(1:nrow(neighbourhood), function(j){
       arc_allocation2 = best_allocation
       arc_allocation2$vehicle = neighbourhood[j,]
       routes = route_finding(arc_allocation2, example_vehicles, example_graph, N = 0)
       evaluate_routes(routes)
     }) %>% do.call(rbind,.)
-    if (any(population_values > neigbour_results[order(neigbour_results)[1:pop_size]])) {
+    # browser()
+    if (max(population_values) > min(neigbour_results[order(neigbour_results)[1:pop_size]], na.rm = T)) {
       # browser()
       pop_temp = rbind(population,neighbourhood[order(neigbour_results)[1:pop_size],])
       pop_temp_values = c(population_values,neigbour_results[order(neigbour_results)[1:pop_size]] )
