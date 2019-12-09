@@ -20,17 +20,16 @@ add_eulerian_need_cycle = function(arcs,graph){
       }
     }) %>% do.call(rbind,.)
   }) %>% do.call(rbind,.) %>% as.matrix()
-# browser()
-  txt = rbind(c(n_nodes, NA,NA), c(nrow(input_txt),NA,NA), input_txt)
-  write.table(txt, file = 'input2.txt', sep = ' ', row.names = F, col.names = F, na = '')
+  # browser()
+  input_file <- tempfile()
+  write(n_nodes, file = input_file)
+  write(nrow(input_txt), file = input_file, append = TRUE)
+  write.table(input_txt, file = input_file, append = TRUE, row.names = FALSE, col.names = FALSE)
   
-  ss = system(command = './MCPM/example2 -f ./input2.txt --minweight', intern = T, wait = T)
-  min_cost_perfect_match = ss[3:length(ss)] %>% unlist %>% 
-    as.character() %>%
-    strsplit(split = ' ') %>% 
-    unlist %>%
-    as.numeric()
-  mcpm_edges = nodene[min_cost_perfect_match+1,]  %>% 
+  result <- minimum_cost_perfect_matching(input_file)
+  
+  result$edges
+  mcpm_edges = nodene[result$edges+1,]  %>% 
     matrix(ncol = 2, byrow = T)
   # browser()
   arcs_part = list()
@@ -52,7 +51,7 @@ add_eulerian_need_cycle = function(arcs,graph){
   }
   # browser()
   
-
+  
   rownames(arcs) = NULL
   return(arcs)
 }

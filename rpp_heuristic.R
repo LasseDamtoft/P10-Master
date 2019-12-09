@@ -13,7 +13,7 @@ rpp_heuristic = function(arcs, N = 100, graph){
       best_route_value = new_route_value
     }
   }else{
-    # browser()
+    browser()
     arcs2 = make_arcs_connected(arcs,graph)
     best_route = euleran_cycle_from_connected(arcs2,graph)
     new_route = euleran_path_from_connected(arcs2,graph)

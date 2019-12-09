@@ -33,7 +33,7 @@ euleran_path_from_connected = function(arcs, graph){
   g <- addEdge(graph=g, from=as.character(arcs2$StartNodeNumber), 
                to=as.character(arcs2$EndNodeNumber))
   start_point = as.character(node[s.paths[1,node] %>% which.min()])
-  # browser()
+  browser()
   if (!hasEulerianPath(g, start_point)) {
     
     arcs3 = add_eulerian_need_paths(arcs,graph)
