@@ -8,10 +8,10 @@ feasibility = function(arc_allocation, vehicles, graph){
                                     which(arc_allocation$vehicle == vehicle_id))] =1
     
     vehicle_service = vehicle_service %>% 
-      mutate(service = service*ceiling(Width/cur_vehicle$spreadwidth))
+      mutate(service = service*(Width/cur_vehicle$spreadwidth))
 
-
-    salt_usage = vehicle_service$service %*% vehicle_service$Lenght * cur_vehicle$spreadwidth * 17/1000
+  # browser()
+    salt_usage = vehicle_service$service %*% vehicle_service$Lenght*1000 * cur_vehicle$spreadwidth * 17/1000
     salt_capacity = cur_vehicle$capacity_m3 * 1200 ## 1.2 ton pr cubic meter from COWI
     salt_usage < salt_capacity
   }) %>% do.call(rbind,.)

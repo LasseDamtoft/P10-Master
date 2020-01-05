@@ -1,19 +1,36 @@
 problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutations = 3){
   # browser()
   # set.seed(13)
+  salt_cap = sum(example_vehicles$capacity_m3*1200)
+  salt_usage = sum(example_graph$Lenght*example_graph$Width) * 17/1000
+  if(salt_usage>salt_cap) {
+    best_allocation = data.frame(arc =example_graph$EdgeNumber[example_graph$service == 1],
+                                 vehicle = 0)
+    return(list(best_allocation, best = 0))
+  }
+  # browser()
   best_allocation = data.frame(arc =example_graph$EdgeNumber[example_graph$service == 1],
-                               vehicle = round(runif(length(example_graph$EdgeNumber[example_graph$service == 1]),
-                                                     min = min(example_vehicles$ID)-.5,
-                                                     max = max(example_vehicles$ID)+.5),0))
+                               vehicle = sample(example_vehicles$ID,size = length(example_graph$EdgeNumber[example_graph$service == 1]),replace = T))
   # best_allocation = arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
   #                                               vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
   # browser()
-  population = best_allocation$vehicle %>% rbind()
+  # population = best_allocation$vehicle %>% rbind()
   # browser()
-  population = population[c(rep(1,pop_size)),] %>% rbind()
-  routes = route_finding(best_allocation, example_vehicles, example_graph, N = 0)
-  best = evaluate_routes(routes)
-  population_values = rep(best,pop_size)
+  
+  population = lapply(1:N_mutations, function(i){
+    vehicle = sample(example_vehicles$ID,size = length(example_graph$EdgeNumber[example_graph$service == 1]),replace = T)
+  }) %>% do.call(rbind,.)
+  population = population %>% rbind(best_allocation$vehicle)
+  population_values = lapply(1:nrow(population), function(j){
+    arc_allocation2 = best_allocation
+    arc_allocation2$vehicle = population[j,]
+    routes = route_finding(arc_allocation2, example_vehicles, example_graph, N = 0)
+    evaluate_routes(routes)
+  }) %>% do.call(rbind,.)
+  # browser()
+  best = min(population_values)
+  best_allocation$vehicle = population[which.min(population_values),]
+  print(c(best_allocation$vehicle, best))
   old = best+1
   # browser()
   while (best < old) {
@@ -63,9 +80,7 @@ problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutat
     # browser()
     for(bla in 1:N_mutations) {
       # browser()
-      addition = round(runif(nrow(best_allocation),
-                             min = min(best_allocation$vehicle)-.5,
-                             max = max(best_allocation$vehicle)+.5),0)
+      addition = sample(example_vehicles$ID,size = length(example_graph$EdgeNumber[example_graph$service == 1]),replace = T)
       temp = best_allocation
       temp$vehicle = addition
       if (feasibility(temp, vehicles = example_vehicles, graph = example_graph)) {
@@ -106,6 +121,7 @@ problem_solver = function(example_vehicles, example_graph, pop_size = 3, N_mutat
       if (best > min(population_values)) {
         best_allocation$vehicle = population[which.min(population_values),]
         best = population_values[which.min(population_values)]
+        print(c(best_allocation$vehicle, best))
       }
     }
   }

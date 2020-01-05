@@ -1,4 +1,3 @@
-source('rpp_heuristic.R')
 route_finding = function(arc_allocation, vehicles, graph, N = 1000){
   # browser()
   route_finding = lapply(unique(arc_allocation$vehicle), function(vehicle_id){
@@ -6,7 +5,7 @@ route_finding = function(arc_allocation, vehicles, graph, N = 1000){
     vehicle_service = graph 
     vehicle_service$service = 0
     vehicle_service$service[which(vehicle_service$EdgeNumber %in% 
-                                    which(arc_allocation$vehicle == vehicle_id))] =1
+                                    arc_allocation$arc[which(arc_allocation$vehicle == vehicle_id)])] =1
     
     vehicle_service = vehicle_service %>% 
       mutate(service = service*ceiling(Width/cur_vehicle$spreadwidth))

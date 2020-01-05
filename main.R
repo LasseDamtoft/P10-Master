@@ -26,10 +26,11 @@ source('sub_graphs.R')
 source('fixed_cost2.R')
 s.paths = short_paths( example_graph[example_graph$service == 1,], distances = T)
 paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
-# arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
-#                             vehicle = c(1,2,1,2,2,1,2,1,1,2,1,2,1,2))
+arc_allocation = data.frame(arc = example_graph$EdgeNumber[example_graph$service == 1],
+                            vehicle = c(1,8,8,1,1,1,1,1,8,8,8,8,1,1))
 
-
+tt = route_finding(arc_allocation, example_vehicles[c(1,8),], example_graph)
+evaluate_routes(tt)
 # euleran_path_from_connected(example_graph[-1,c(2,3,4,7)], graph = example_graph)
 
 
@@ -52,7 +53,8 @@ paths_list = short_paths( example_graph[example_graph$service == 1,], paths = T)
 # paths_list = paths_list_test
 
 tic= Sys.time()
-solution = problem_solver(example_vehicles, example_graph, pop_size = 5, N_mutations = 5)
+solution = problem_solver(example_vehicles[c(1,8),], example_graph, pop_size = 5, N_mutations = 5)
 Sys.time() - tic 
 
-solution[[1]] %>% route_finding(vehicles = example_vehicles, example_graph)
+ss =solution[[1]] %>% route_finding(vehicles = example_vehicles[c(1,8),], example_graph)
+evaluate_routes(ss)
